@@ -263,7 +263,7 @@ namespace Гладиаторские_бои
             Fighter fighter2;
 
             ChooseCharacter(out fighter1, out fighter2);
-            StartBattle(fighter1, fighter2);
+            ConductBattle(fighter1, fighter2);
             ShowResults(fighter1, fighter2);
         }
 
@@ -304,7 +304,7 @@ namespace Гладиаторские_бои
             Console.ReadKey();
         }
 
-        private void StartBattle(Fighter fighter1, Fighter fighter2)
+        private void ConductBattle(Fighter fighter1, Fighter fighter2)
         {
             while (fighter1.IsAlive && fighter2.IsAlive)
             {
