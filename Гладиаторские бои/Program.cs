@@ -17,33 +17,36 @@ namespace Гладиаторские_бои
     {
         protected int Armor;
 
-        public Fighter(string name, int health, int armor, int damage)         
-        {  
+        public Fighter(string name, int health, int armor, int damage)
+        {
             Name = name;
-            Health = health;                                      
+            Health = health;
             Armor = armor;
             Damage = damage;
-            IsAlive = true;
         }
 
         public string Name { get; protected set; }
         public int Health { get; protected set; }
-        public bool IsAlive { get; private set; }                 
-        public int Damage { get; private set; }                   
+        public bool IsAlive => Health > 0;
+        public int Damage { get; private set; }
 
         public virtual void TakeDamage(int damage)
         {
-            if(Armor > damage)
+            if (IsAlive == false)
+            {
+                return;
+            }
+
+            if (Armor > damage)
             {
                 damage = Armor;
             }
 
             Health -= damage - Armor;
 
-            if (Health <= 0)                                     
+            if (Health < 0)
             {
                 Health = 0;
-                IsAlive = false;
             }
         }
 
@@ -66,7 +69,7 @@ namespace Гладиаторские_бои
 
     class Warriour : Fighter
     {
-        public int _rage = 0;                                           
+        public int _accumulatedRage = 0;
 
         public Warriour() : base("Воин", 150, 12, 30) { }
 
@@ -75,16 +78,18 @@ namespace Гладиаторские_бои
             int ragePerBloW = 7;
             int ragePerFuriousBlow = 20;
             int damagePerFurriousBlow = 10;
+            int damage;
 
-            Console.WriteLine($"Воин накапливает {ragePerBloW} ярости");              
-            _rage += ragePerBloW;                                                   
+            Console.WriteLine($"Воин накапливает {ragePerBloW} ярости");
+            _accumulatedRage += ragePerBloW;
 
-            if (_rage >= ragePerFuriousBlow)
+            if (_accumulatedRage >= ragePerFuriousBlow)
             {
-                Console.WriteLine("Воин наносит яростный удар");         
-                _rage -= ragePerFuriousBlow;
+                Console.WriteLine("Воин наносит яростный удар");
+                _accumulatedRage -= ragePerFuriousBlow;
+                damage = Damage + damagePerFurriousBlow;
 
-                return Damage + damagePerFurriousBlow;
+                return damage;
             }
 
             return Damage;
@@ -94,7 +99,7 @@ namespace Гладиаторские_бои
         {
             Console.WriteLine("Воин");
             base.ShowInfo();
-            Console.WriteLine($", Ярости: {_rage}");
+            Console.WriteLine($", Ярости: {_accumulatedRage}");
         }
     }
 
@@ -106,17 +111,18 @@ namespace Гладиаторские_бои
         {
             int minValueSlope = 1;
             int maxValueSlope = 100;
-            int slopeValue = 25;
+            int evadeChance = 25;
 
             int slope = Utils.GetRandomValue(minValueSlope, maxValueSlope);
 
-            if (slope <= slopeValue)
+            if (slope <= evadeChance)
             {
                 Console.WriteLine("Рыцарь Смерти уклонился");
-                return;
             }
-
-            base.TakeDamage(damage);
+            else
+            {
+                base.TakeDamage(damage);
+            }
         }
 
         public override void ShowInfo()
@@ -225,6 +231,7 @@ namespace Гладиаторские_бои
             int stacsPerIceArmor = 4;
             int manaPerFayerBoll = 20;
             int damagePerFayerBoll = 20;
+            int damage;
 
             _mana += manaPerBlow;
 
@@ -241,7 +248,9 @@ namespace Гладиаторские_бои
             {
                 Console.WriteLine($"Маг использует огненный шар и наносит {Damage + damagePerFayerBoll} урона");
                 _mana -= manaPerFayerBoll;
-                return Damage + damagePerFayerBoll;
+                damage = Damage + damagePerFayerBoll;
+
+                return damage;
             }
 
             return Damage;
@@ -279,24 +288,17 @@ namespace Гладиаторские_бои
             } while (fighter1 == null || fighter2 == null);
         }
 
-        private void ShowCombatLog(Fighter fighter1, Fighter fighter2)
-        {
-            Console.WriteLine($"Здороввье первого игока {fighter1.Health},\n" +  
-                              $"Здоровье второго игрока {fighter2.Health}");
-            Console.WriteLine();
-        }
-
         private void ShowResults(Fighter fighter1, Fighter fighter2)
         {
-            if (fighter1.Health == 0 && fighter2.Health == 0)
+            if (fighter1.IsAlive == false && fighter2.IsAlive == false)
             {
                 Console.WriteLine("Ничья");
             }
-            else if (fighter1.Health > 0)
+            else if (fighter1.IsAlive)
             {
                 Console.WriteLine("Игрок 1 победил");
             }
-            else if (fighter2.Health > 0)
+            else if (fighter2.IsAlive)
             {
                 Console.WriteLine("Игрок 2 победил");
             }
@@ -317,15 +319,17 @@ namespace Гладиаторские_бои
                 fighter2.Attack(fighter1);
 
                 Console.WriteLine();
-                ShowCombatLog(fighter1, fighter2);
+                Console.WriteLine($"Здороввье первого игока {fighter1.Health},\n" +
+                  $"Здоровье второго игрока {fighter2.Health}");
+                Console.WriteLine();
                 Console.ReadKey();
             }
         }
 
         private Fighter CreateWarrior()
         {
-            List<Fighter> fighters = new List<Fighter>() 
-            { 
+            List<Fighter> fighters = new List<Fighter>()
+            {
                 new Warriour(),
                 new DeathKnight(),
                 new Priest(),
@@ -340,7 +344,7 @@ namespace Гладиаторские_бои
 
             int characterIndex = ReadNumber() - 1;
 
-            if ( characterIndex < 0 || characterIndex >= fighters.Count)
+            if (characterIndex < 0 || characterIndex >= fighters.Count)
             {
                 Console.WriteLine("Такого персонажа не существует");
                 return null;
