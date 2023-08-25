@@ -113,9 +113,9 @@ namespace Гладиаторские_бои
             int maxValueSlope = 100;
             int evadeChance = 25;
 
-            int slope = Utils.GetRandomValue(minValueSlope, maxValueSlope);
+            int randomValue = Utils.GetRandomValue(minValueSlope, maxValueSlope);
 
-            if (slope <= evadeChance)
+            if (randomValue <= evadeChance)
             {
                 Console.WriteLine("Рыцарь Смерти уклонился");
             }
@@ -134,7 +134,7 @@ namespace Гладиаторские_бои
 
     class Priest : Fighter
     {
-        private int _mana = 20;
+        private int _accumulatedMana = 20;
 
         public Priest() : base("Жрец", 110, 8, 33) { }
 
@@ -145,11 +145,11 @@ namespace Гладиаторские_бои
 
             base.TakeDamage(damage);
 
-            if (_mana >= manaPerPrayerRestoration)
+            if (_accumulatedMana >= manaPerPrayerRestoration)
             {
                 Health += healthPerPrayerRestoration;
                 Console.WriteLine($"Жрец восстанавливает {healthPerPrayerRestoration} здоровья");
-                _mana -= manaPerPrayerRestoration;
+                _accumulatedMana -= manaPerPrayerRestoration;
             }
         }
 
@@ -157,7 +157,7 @@ namespace Гладиаторские_бои
         {
             int manaPerBlow = 8;
 
-            _mana += manaPerBlow;
+            _accumulatedMana += manaPerBlow;
             Console.WriteLine($"Жрец восстанавливает {manaPerBlow} маны");
             return Damage;
         }
@@ -166,13 +166,13 @@ namespace Гладиаторские_бои
         {
             Console.WriteLine("Жрец");
             base.ShowInfo();
-            Console.WriteLine($", Мана: {_mana}");
+            Console.WriteLine($", Мана: {_accumulatedMana}");
         }
     }
 
     class Warlock : Fighter
     {
-        private int _mana = 20;
+        private int _accumulatedMana = 20;
 
         public Warlock() : base("Чернокнижник", 105, 8, 35) { }
 
@@ -182,11 +182,11 @@ namespace Гладиаторские_бои
             int manaPerBurnOfFilth = 20;
             int damagePerBurnOfFilt = 25;
 
-            _mana += manaPerBlow;
+            _accumulatedMana += manaPerBlow;
 
             Console.WriteLine($"Чернокнижник восстанавливает {manaPerBlow} маны");
 
-            if (_mana >= manaPerBurnOfFilth)
+            if (_accumulatedMana >= manaPerBurnOfFilth)
             {
                 Console.WriteLine("Чернокнижник использует ожог скверны");
                 return Damage + damagePerBurnOfFilt;
@@ -199,7 +199,7 @@ namespace Гладиаторские_бои
         {
             Console.WriteLine("Чернокнижник");
             base.ShowInfo();
-            Console.WriteLine($", Мана: {_mana}");
+            Console.WriteLine($", Мана: {_accumulatedMana}");
         }
     }
 
@@ -368,11 +368,11 @@ namespace Гладиаторские_бои
 
     public static class Utils
     {
-        private static Random _random = new Random();
+        private static Random s_random = new Random();
 
         public static int GetRandomValue(int minValue, int maxValue)
         {
-            return _random.Next(minValue, maxValue);
+            return s_random.Next(minValue, maxValue + 1);
         }
     }
 }
